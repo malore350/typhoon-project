@@ -1,0 +1,1 @@
+yolo task=detect mode=predict model='C:\Users\kamra\DataspellProjects\yolov8_test\runs\detect\train4\weights\best.pt'  source='C:\Users\kamra\Downloads\Video\last-024h.mp4' show=True save = True
