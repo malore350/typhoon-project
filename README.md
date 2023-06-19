@@ -1,1 +1,1 @@
-# typhoon-project
+# Typhoon image analysis using deep learning
