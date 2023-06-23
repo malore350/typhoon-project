@@ -43,3 +43,5 @@ for index in range(len(dropdown.options)):
 
 # Close the driver after looping through all dropdown options
 driver.quit()
+
+# Path: images_download\downfiles.py
