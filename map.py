@@ -1,34 +1,37 @@
-import cv2
-import numpy as np
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import matplotlib.image as mpimg
 
-def create_output_image(width, height):
-    return np.zeros((height, width, 3), dtype=np.uint8)
+from PIL import Image
+Image.MAX_IMAGE_PIXELS = 1000000000  # Disable DecompressionBombError
 
-def convert_globe_to_map(image_path, output_path):
-    img = cv2.imread(image_path)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # Ensure the image is in RGB
+def convert_globe_to_map(input_image_path, output_image_path):
+    # Load the input image
+    img = mpimg.imread(input_image_path)
 
-    h, w, _ = img.shape
-    output_image = create_output_image(w, h)
+    # Calculate the dpi
+    height, width, _ = img.shape
+    dpi = 100.  # Default dpi. It will be adjusted later.
+    figsize = width / dpi, height / dpi
 
-    for y in range(h):
-        for x in range(w):
-            polar_y = (y / float(h)) * np.pi # 0 <= polar_y <= pi
-            polar_x = (x / float(w)) * 2 * np.pi # 0 <= polar_x <= 2pi
+    # Create a figure with the calculated figure size
+    fig = plt.figure(figsize=figsize)
 
-            # Compute spherical coordinates for the pixel location
-            cartesian_y = int(((np.sin(polar_y) * np.cos(polar_x) + 1) / 2) * h)
-            cartesian_x = int(((np.sin(polar_y) * np.sin(polar_x) + 1) / 2) * w)
+    # Adjust the dpi to the real dpi
+    dpi = fig.get_dpi()
+    fig.set_size_inches(width / dpi, height / dpi)
 
-            # Ensure the coordinates are within the bounds of the image
-            cartesian_y = max(0, min(cartesian_y, h - 1))
-            cartesian_x = max(0, min(cartesian_x, w - 1))
+    # Create a GeoAxes in the tile's projection
+    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
 
-            # Set the output pixel's color to the input pixel's color
-            output_image[y, x] = img[cartesian_y, cartesian_x]
+    # Make the map global
+    ax.set_global()
 
-    output_image = cv2.cvtColor(output_image, cv2.COLOR_RGB2BGR) # Convert back to BGR for saving
-    cv2.imwrite(output_path, output_image)
+    # Show the loaded image in the map with extents
+    ax.imshow(img, origin='upper', transform=ccrs.PlateCarree(), extent=[-180, 180, -90, 90])
+
+    # Save the output image at the original resolution
+    plt.savefig(output_image_path, dpi=dpi)
 
 # Usage
-convert_globe_to_map(r"C:\Users\kamra\DataspellProjects\yolov8_test\runs\detect\predict24\image_0.jpg", r'C:\Users\kamra\DataspellProjects\yolov8_test')
+convert_globe_to_map(r"runs\detect\predict24\image_0.jpg", r'C:\Users\kamra\DataspellProjects\yolov8_test\output.jpg')
