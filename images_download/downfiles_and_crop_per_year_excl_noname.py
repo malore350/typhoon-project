@@ -151,7 +151,7 @@ for row in table_rows[1:]:
                 with open(f'{target_dir}/image_{index}.jpg', 'wb') as out_file:
                     out_file.write(response.content)
 
-                # Cropping the image
+                # OPTIONAL Cropping the image
                 image = Image.open(f'{target_dir}/image_{index}.jpg')
                 width, height = image.size
 
