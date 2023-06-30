@@ -1,4 +1,4 @@
-# THIS IS USED TO BOTH DOWNLOAD AND CROP IMAGES
+# THIS IS USED IN CASE IMAGES ARE DOWNLOADED, BUT CROP IS NOT DONE
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -46,8 +46,8 @@ p1 = Proj(proj='latlong', datum='WGS84')
 p2 = Proj('+proj=geos +lon_0=140.7 +h=35785831.0 +x_0=0 +y_0=0 +a=6378169.0 +b=6356583.8 +units=m +no_defs')
 
 # Define the calibration points
-latlon_points = [(-11.9, 92.6), (-14, 117.5), (-14.7, 153.6)]
-pixel_points = [(1122, 6696), (3040, 6977), (6816, 7025)]
+latlon_points = [(-11.9, 92.6), (-14, 117.5), (-14.7, 153.6), (-9.8, 101.0), (-10.5, 156.3)]
+pixel_points = [(1122, 6696), (3040, 6977), (6816, 7025), (1648, 6652), (7236,6824)]
 
 # Convert lat/lon to projected coordinates
 proj_points = [transform(p1, p2, lon, lat) for lat, lon in latlon_points]
@@ -66,6 +66,9 @@ params_y, _ = curve_fit(func_y, [point[1] for point in proj_points], [point[1] f
 def latlon_to_pixel(lat, lon):
     x, y = transform(p1, p2, lon, lat)
     return func_x(x, *params_x), func_y(y, *params_y)
+
+def count_files_in_directory(directory):
+    return len([f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))])
 
 
 
@@ -192,12 +195,43 @@ for row in table_rows[1:]:
                     image = Image.open(f'{target_dir}/image_{index}.jpg')
                     width, height = image.size
 
+                    # cropping the image
                     cropped_image = image.crop((output[0]-1000, output[1]-1000, output[0]+1000, output[1]+1000))
                     cropped_image.save(f'{target_dir_cropped}/image_{index}.jpg')
             else:
-                # if number of items in folder doesn't match number of files in the dropdown,
-                # write a code to pick up from where it is left based on the number of files in folder
-                # serving as index
+                #Find Longitude/Latitude information
+                latitude = float(all_meta_elements[4].text.strip())
+                longitude = float(all_meta_elements[5].text.strip())
+
+                # Find all 'td' elements with class 'META' that contain 'ul' elements with class 'LISTITEM'
+                all_meta_elems = soup.find_all('td', {'class': 'META'})
+                listitem_links = [elem.find('ul', {'class': 'LISTITEM'}).find('a') for elem in all_meta_elems if elem.find('ul', {'class': 'LISTITEM'}) is not None]
+
+                # Select the correct 'a' element based on the index
+                listitem_link = listitem_links[3]
+
+                # Build the full URL
+                listitem_url = urljoin(base_url, listitem_link.get('href'))
+
+                # Navigate to the URL
+                driver.get(listitem_url)
+
+                # Wait for the page to load completely
+                time.sleep(2)
+
+                # Find the dropdown element
+                dropdown = Select(driver.find_element(By.CLASS_NAME, 'nav_select'))
+
+
+                for index in range(count_files_in_directory(target_dir)):
+                    output = latlon_to_pixel(latitude, longitude)
+                    image = Image.open(f'{target_dir}/image_{index}.jpg')
+                    width, height = image.size
+
+                    # cropping the image
+                    cropped_image = image.crop((output[0]-1000, output[1]-1000, output[0]+1000, output[1]+1000))
+                    cropped_image.save(f'{target_dir_cropped}/image_{index}.jpg')
+
                 continue
 
 
