@@ -1,7 +1,5 @@
 # Detection and Trajectory Forecasting of Tropical Cyclones: An Implementation of YOLOv8 for Meteorological Phenomena
 
-Simple overview of use/purpose.
-
 ## Description
 
 This repository contains the code and resources for a novel object detection project that aims to identify and locate typhoons in satellite imagery using the state-of-the-art YOLOv8 (You Only Look Once version 8) algorithm.
