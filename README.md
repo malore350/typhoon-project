@@ -14,7 +14,7 @@ In this repository, you will find:
 * The YOLOv8 model training and testing scripts.
 * Data downloading and preprocessing scripts.
 * Instructions for setting up and running the code.
-* 
+
 This project combines deep learning and satellite meteorology to create a practical tool for typhoon detection and tracking. While it's currently focused on typhoons, the methods and code could be adapted to other severe weather events, demonstrating the versatility and potential of machine learning in meteorology.
 
 ## Getting Started
