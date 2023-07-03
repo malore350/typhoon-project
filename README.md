@@ -35,11 +35,11 @@ This project combines deep learning and satellite meteorology to create a practi
 
 Contributors names and contact info
 
-Gasimov Kamran 
-[github](https://github.com/malore350)
+* Gasimov Kamran 
+* [github](https://github.com/malore350)
 
-Alexandra Suchshenko
-[github](https://github.com/sawooooook)
+* Alexandra Suchshenko
+* [github](https://github.com/sawooooook)
 
 ## Version History
 
