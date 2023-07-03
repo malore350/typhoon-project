@@ -1,4 +1,4 @@
-# Typhoon image analysis using deep learning
+# Detection and Trajectory Forecasting of Tropical Cyclones: An Implementation of YOLOv8 for Meteorological Phenomena
 
 Simple overview of use/purpose.
 
@@ -44,3 +44,7 @@ This project combines deep learning and satellite meteorology to create a practi
 ## License
 
 This project has no license.
+
+## Notes
+
+Send PR request for any issues
