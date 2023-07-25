@@ -24,8 +24,9 @@ from scipy.spatial import Delaunay
 
 
 # Define your main target directory
-main_target_dir = "TyphoonProject/typhoon-project/images_new/2022"
-main_projected_dir = "TyphoonProject/typhoon-project/projected/2022"
+main_target_dir = "/lustre/home/sasha/typhoon/images/2021"
+main_projected_dir = "/lustre/home/sasha/typhoon/projected/2021"
+main_cropped_dir = "/lustre/home/sasha/typhoon/cropped/2021"
 options = Options()
 options.headless = True
 driver = webdriver.Firefox(options=options)
@@ -34,7 +35,7 @@ driver = webdriver.Firefox(options=options)
 base_url = 'http://agora.ex.nii.ac.jp'
 
 # Go to your outer page
-outer_url = 'http://agora.ex.nii.ac.jp/digital-typhoon/year/wsp/2022.html.en' # replace with the URL of the outer page
+outer_url = 'http://agora.ex.nii.ac.jp/digital-typhoon/year/wsp/2021.html.en' # replace with the URL of the outer page
 driver.get(outer_url)
 
 # Get the HTML of the outer page
@@ -172,7 +173,7 @@ for row in table_rows[1:]:
 
             # Create a new directory for this link if it doesn't exist
             target_dir = os.path.join(main_target_dir, folder_name)
-            target_dir_cropped = os.path.join(main_target_dir, folder_cropped_name)
+            target_dir_cropped = os.path.join(main_cropped_dir, folder_cropped_name)
             projected_dir = os.path.join(main_projected_dir, folder_name)
             
             if not os.path.isdir(target_dir) and not os.path.isdir(target_dir_cropped):
@@ -227,7 +228,7 @@ for row in table_rows[1:]:
 
                     # APPLY PROJECTION TO THE IMAGE
                     start_time = time.time()
-                    command = ["/lustre/home/kamran/sanchez-v1.0.24-linux-x64/Sanchez", "reproject", "-s", f'{target_dir}/{folder_name[:-1]}1.jpg', "-o", f'{projected_dir}/image_{index}_{category}.jpg', "-ULa", "-r", "1"] # "--lon", f'{longitude-5}:{longitude+5}', "--lat", f'{latitude+5}:{latitude-5}'
+                    command = ["typhoon/sanchez-v1.0.24-linux-x64/Sanchez", "reproject", "-s", f'{target_dir}/{folder_name[:-1]}1.jpg', "-o", f'{projected_dir}/image_{index}_{category}.jpg', "-ULa", "-r", "1"] # "--lon", f'{longitude-5}:{longitude+5}', "--lat", f'{latitude+5}:{latitude-5}'
                     subprocess.run(command)
                     end_time = time.time()
                     print(f"Time taken to reproject image {index}: {end_time - start_time}")
@@ -247,10 +248,18 @@ for row in table_rows[1:]:
                     bottom = output_project[1]+crop_size
 
                     # Make sure the proposed crop box doesn't exceed the image's dimensions
-                    left = max(0, left)
-                    top = max(0, top)
-                    right = min(width, right)
-                    bottom = min(height, bottom)
+                    if left < 0:
+                        right -= left  # shift right boundary to the right
+                        left = 0
+                    if top < 0:
+                        bottom -= top  # shift bottom boundary down
+                        top = 0
+                    if right > width:
+                        left -= right - width  # shift left boundary to the left
+                        right = width
+                    if bottom > height:
+                        top -= bottom - height  # shift top boundary up
+                        bottom = height
 
                     # cropping the image
                     cropped_image = image.crop((left, top, right, bottom))
