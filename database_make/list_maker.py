@@ -67,8 +67,28 @@ for row in table_rows[1:]:
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
 
+            # Get the velocity of the typhoon
+            all_meta_elements = soup.find_all('td', {'class': 'META'})
+            max_wind_speed = all_meta_elements[8].text.strip()
+            max_wind_speed = int(max_wind_speed[:-2])
+
+            # Categorizing the wind
+            if max_wind_speed < 34:
+                category = '2'
+            elif max_wind_speed < 48:
+                category = '3'
+            elif max_wind_speed < 64:
+                category = '4'
+            else:
+                category = '5'
+            
+            # Find Longitude/Latitude information
+            latitude = float(all_meta_elements[4].text.strip())
+            longitude = float(all_meta_elements[5].text.strip())
+
+
             folder_name = soup.find('td', {'class': 'CURRENT'}).text.replace(":", "_").replace(" ", "_")
-            folder_name = folder_name[0:4] + folder_name[5:7] + folder_name[8:10] +'/'
+            folder_name = folder_name[0:4] + folder_name[5:7] + "/" + folder_name[8:10] + '/' + f"{category}" + "/" + f"{latitude}" + "/" + f"{longitude}" + '/'
 
             with open('database_make/output.txt', 'a+') as f:
                 # Move to the beginning of the file to read it
@@ -82,5 +102,3 @@ for row in table_rows[1:]:
                     f.write(folder_name + '\n')
 
 driver.quit()
-
-#TODO: Add typhoon's category, latitude and longitude information in the written txt file
